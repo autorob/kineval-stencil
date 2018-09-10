@@ -1,0 +1,365 @@
+<!--|\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/|
+|\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/|
+||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/
+/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\
+
+    Pendularm 1 simulation 
+        
+    Simple 1 DOF pendulum dynamics and control in HTML5/JavaScript and threejs
+    
+    @author ohseejay / https://github.com/ohseejay
+                     / https://bitbucket.org/ohseejay
+
+    Chad Jenkins
+    Laboratory for Perception RObotics and Grounded REasoning Systems
+    University of Michigan
+
+    License: Michigan Honor License 
+
+|\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/|
+||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/
+/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\
+\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\-->
+
+<html>
+
+<body>
+
+<!-- //////////////////////////////////////////////////
+     /////     JAVASCRIPT INCLUDES
+     ////////////////////////////////////////////////// -->
+
+
+<!-- threejs - https://github.com/mrdoob/three.js/ -->
+<script src="js/three.min.js"></script>
+
+<!-- threejs camera controls helpers -->
+<script src="js/OrbitControls.js"></script>
+
+<!-- threejs keyboard input helper -->
+<script src="js/THREEx.KeyboardState.js"></script>
+
+<script>
+
+//////////////////////////////////////////////////
+/////     MAIN FUNCTION CALLS
+//////////////////////////////////////////////////
+
+// initialize threejs scene, user input, and robot kinematics
+init();
+
+// main animation loop maintained by threejs 
+animate();
+
+
+//////////////////////////////////////////////////
+/////     INITIALIZATION FUNCTION DEFINITONS
+//////////////////////////////////////////////////
+
+function init() {
+
+    // create pendulum object and its kinematic and dynamic parameters
+    pendulum = {length:2.0, mass:2.0, angle:Math.PI/2, angle_dot:0.0};
+
+    // initialize pendulum controls
+    pendulum.control = 0;
+    pendulum.desired = -Math.PI/2.5;
+    pendulum.desired_dot = 0;
+
+    // initialize integral term accumulated error to zero
+    accumulated_error = 0;
+
+    // set gravity
+    gravity = 9.81;  // Earth gravity
+
+    // initialize pendulum PID servo gains
+    pendulum.servo = {kp:0, kd:0, ki:0};  // no control
+
+    // initialize time and set timestep 
+    t = 0;
+    dt = 0.05;  // default
+ 
+    // initialize method of numerical integration of dynamics
+    //numerical_integrator = "euler";
+    //numerical_integrator = "verlet";
+    //numerical_integrator = "velocity verlet";
+    //numerical_integrator = "runge-kutta";
+
+    // OPTIONAL servo controller additional features
+    steady_state_error_reset = false; // integral term resets after desired met
+    servo_error_threshold = 0.001; // threshold for achieving desired
+    servo_active_persist = false; // toggle to turn on servo controller
+    servo_active_state = {}; // string with current state of servo activation
+
+    //STENCIL: for verlet integration, a first step in time is needed
+
+    document.addEventListener('keydown', function(e) {
+        if (e.keyCode == 88)  // 'x' == 88
+           servo_active_persist = !servo_active_persist;
+    }, true);
+
+    // initialize rendering scene and user interface
+    createScene();
+
+}
+
+
+//////////////////////////////////////////////////
+/////     ANIMATION AND INTERACTION LOOP
+//////////////////////////////////////////////////
+
+function animate() {
+
+    // note: three.js includes requestAnimationFrame shim
+    // alternative to using setInterval for updating in-browser drawing
+    // this effectively request that the animate function be called again for next draw
+    // http://learningwebgl.com/blog/?p=3189
+    requestAnimationFrame( animate );
+
+    // switch between numerical integrators based on user input
+    if (keyboard.pressed("0"))
+        numerical_integrator = "none";
+    if (keyboard.pressed("1"))
+        numerical_integrator = "euler";
+    if (keyboard.pressed("2"))
+        numerical_integrator = "verlet";
+    if (keyboard.pressed("3"))
+        numerical_integrator = "velocity verlet";
+    if (keyboard.pressed("4"))
+        numerical_integrator = "runge-kutta";
+
+    // update servo desired state from user interaction 
+    if ( keyboard.pressed("e") )
+        pendulum.desired += 0.05; // move the desired angle for the servo
+    if ( keyboard.pressed("q") )
+        pendulum.desired += -0.05; // move the desired angle for the servo
+
+
+    // add user force from user interaction
+    if ( keyboard.pressed("d") )
+        pendulum.control += 50.0;  // add a motor force to the pendulum motor
+    else if ( keyboard.pressed("a") )
+        pendulum.control += -50.0; // add a motor force to the pendulum motor
+
+    // STENCIL: implement servo controller
+
+    // toggle activation of servo controller from user interaction
+    if (keyboard.pressed("c"))
+        servo_active_persist = !servo_active_persist;
+
+    // disable motor from user interaction 
+    if (keyboard.pressed("s")||!servo_active_persist) {
+        pendulum.control = 0;
+        accumulated_error = 0;
+        servo_active_state = "disabled";
+    }
+    else
+        servo_active_state = "active";
+
+
+    // integrate pendulum state forward in time by dt
+    if (typeof numerical_integrator === "undefined")
+        numerical_integrator = "none";
+
+    if (numerical_integrator === "euler") {
+
+    // STENCIL: a correct Euler integrator is REQUIRED for assignment
+
+    }
+    else if (numerical_integrator === "verlet") {
+
+    // STENCIL: basic Verlet integration
+
+    }
+    else if (numerical_integrator === "velocity verlet") {
+
+    // STENCIL: a correct velocity Verlet integrator is REQUIRED for assignment
+
+    }
+    else if (numerical_integrator === "runge-kutta") {
+
+    // STENCIL: Runge-Kutta 4 integrator
+    } 
+    else {
+        pendulum.angle_previous = pendulum.angle;
+        pendulum.angle = (pendulum.angle+Math.PI/180)%(2*Math.PI);
+        pendulum.angle_dot = (pendulum.angle-pendulum.angle_previous)/dt;
+        numerical_integrator = "none";
+    }
+
+    // set the angle of the pendulum
+    pendulum.geom.rotation.y = pendulum.angle;  // threejs cylinders have their axes along the y-axis
+
+    // advance time
+    t = t + dt;
+
+    textbar.innerHTML = 
+        "System <br> " +
+        " t = " + t.toFixed(2) + 
+        " dt = " + dt.toFixed(2) + 
+        "<br>" +
+        " integrator = " + numerical_integrator + 
+        "<br>" +
+        " x = " + pendulum.angle.toFixed(2) + 
+        "<br>" +
+        " x_dot = " + pendulum.angle_dot.toFixed(2) + 
+        "<br>" +
+        " x_desired = " + pendulum.desired.toFixed(2) + 
+        "<br><br> Servo: " + servo_active_state + " <br> " +
+        " u = " + pendulum.control.toFixed(2) +
+        "<br>" +
+        " kp = " + pendulum.servo.kp.toFixed(2) + 
+        "<br>" +
+        " kd = " + pendulum.servo.kd.toFixed(2) + 
+        "<br>" +
+        " ki = " + pendulum.servo.ki.toFixed(2) +
+        "<br><br>  Pendulum <br> " +
+        " mass = " + pendulum.mass.toFixed(2) +
+        "<br>" +
+        " length = " + pendulum.length.toFixed(2) +
+        "<br>" +
+        " gravity = " + gravity.toFixed(2) +
+        "<br><br>  Keys <br> " +
+        " [0-4] - select integrator " +
+        "<br>" +
+        " a/d - apply user force " +
+        "<br>" +
+        " q/e - adjust desired angle " +
+        "<br>" +
+        " c|x - toggle servo " +
+        "<br>" +
+        " s - disable servo "
+
+    ;
+
+    // threejs rendering update
+    renderer.render( scene, camera );
+
+}
+
+function pendulum_acceleration(p,g) {
+    // STENCIL: return acceleration(s) system equation(s) of motion 
+}
+
+function createScene() {
+
+    // instantiate threejs scene graph
+    scene = new THREE.Scene();
+
+    // instantiate threejs camera and set its position in the world
+    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+    camera.position.y = 1;
+    camera.position.z = 4;
+
+    var light1 = new THREE.PointLight( 0xffffff, 0.3, 1000 ); 
+    light1.position.set( 10, 10, 10 ); 
+    scene.add( light1 );
+
+    var light2 = new THREE.PointLight( 0xffffff, 0.3, 1000 ); 
+    light2.position.set( 10, -10, 10 ); 
+    scene.add( light2 );
+
+    var light3 = new THREE.PointLight( 0xffffff, 0.3, 1000 ); 
+    light3.position.set( -10, -10, 10 ); 
+    scene.add( light3 );
+
+    var light4 = new THREE.PointLight( 0xffffff, 0.3, 1000 ); 
+    light4.position.set( -10, 10, 10 ); 
+    scene.add( light4 );
+
+    // instantiate threejs renderer and its dimensions
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+
+    // attach threejs renderer to DOM
+    document.body.appendChild( renderer.domElement );
+
+    // instantiate threejs camera controls
+    camera_controls = new THREE.OrbitControls( camera );
+    camera_controls.addEventListener( 'change', renderer );
+
+    // instantiate threejs keyboard controls, for continuous interactive controls
+    keyboard = new THREEx.KeyboardState();
+
+    textbar = document.createElement('div');
+    textbar.style.position = 'absolute';
+    //textbar.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+    textbar.style.width = window.width-10;
+    textbar.style["font-family"] = "Monospace";
+    textbar.style.height = 20;
+    //textbar.style.backgroundColor = "black";
+    textbar.style.color = "#000000";
+    textbar.innerHTML = "M4PRoGReS - pendularm!";
+    textbar.style.top = 10 + 'px';
+    textbar.style.left = 10 + 'px';
+    document.body.appendChild(textbar);
+
+    temp_geom = new THREE.CylinderGeometry(0.2, 0.2, 3.5, 20, 20, false);
+    temp_material = new THREE.MeshLambertMaterial( { } );
+    temp_material.color.r = 1;
+    temp_material.color.g = 1;
+    temp_material.color.b = 1;
+    temp_material.color.b = 1;
+    temp_material.transparent = true;
+    temp_material.opacity = 0.3;
+
+    leg1 = new THREE.Mesh(temp_geom, temp_material);
+    leg2 = new THREE.Mesh(temp_geom, temp_material);
+    leg3 = new THREE.Mesh(temp_geom, temp_material);
+    leg4 = new THREE.Mesh(temp_geom, temp_material);
+    leg1.position = {x:2,z:1,y:0};
+    leg2.position = {x:-2,z:1,y:0};
+    leg3.position = {x:-2,z:-1,y:0};
+    leg4.position = {x:2,z:-1,y:0};
+    scene.add(leg1);
+    scene.add(leg2);
+    scene.add(leg3);
+    scene.add(leg4);
+
+    temp_geom = new THREE.CylinderGeometry(0.2, 0.2, 4.0, 20, 20, false);
+    sidebar1 = new THREE.Mesh(temp_geom, temp_material);
+    sidebar1.rotateOnAxis(new THREE.Vector3(0,0,1),Math.PI/2);
+    sidebar1.position = {x:-2,z:0,y:1.5};
+    leg1.add(sidebar1);
+    sidebar2 = new THREE.Mesh(temp_geom, temp_material);
+    sidebar2.rotateOnAxis(new THREE.Vector3(0,0,1),Math.PI/2);
+    sidebar2.position = {x:2,z:0,y:1.5};
+    leg3.add(sidebar2);
+
+    temp_geom = new THREE.CylinderGeometry(0.2, 0.2, 2.0, 20, 20, false);
+    crossbar = new THREE.Mesh(temp_geom, temp_material);
+    crossbar.rotateOnAxis(new THREE.Vector3(1,0,0),Math.PI/2);
+    crossbar.position = {x:0,z:-1,y:0};
+    sidebar1.add(crossbar);
+
+    temp_geom = new THREE.CylinderGeometry(0.3, 0.3, 0.3, 20, 20, false);
+
+    temp_material = new THREE.MeshLambertMaterial( { } );
+    temp_material.color.r = 1;
+    temp_material.color.g = 0;
+    temp_material.color.b = 0;
+    temp_material.transparent = false;
+
+    pendulum.geom = new THREE.Mesh(temp_geom, temp_material);
+    pendulum.geom.rotateOnAxis(new THREE.Vector3(1,0,0),Math.PI/2);
+    //crossbar.add(pendulum.geom);
+    scene.add(pendulum.geom);
+    pendulum.geom.position = {x:0,y:1.5,z:0};
+
+    temp_geom = new THREE.CylinderGeometry(0.2, 0.2, pendulum.length, 20, 20, false);
+    pendulum_link = new THREE.Mesh(temp_geom, temp_material);
+    pendulum_link.rotateOnAxis(new THREE.Vector3(1,0,0),-Math.PI/2);
+    pendulum_link.position = {x:0,z:pendulum.length/2,y:0};
+    pendulum.geom.add(pendulum_link);
+
+    temp_geom = new THREE.SphereGeometry(Math.sqrt(pendulum.mass*0.1));
+    pendulum_mass = new THREE.Mesh(temp_geom, temp_material);
+    pendulum_mass.position = {x:0,y:-pendulum.length/2,z:0};
+    pendulum_link.add(pendulum_mass);
+}
+
+</script>
+</body>
+</html>
+
+

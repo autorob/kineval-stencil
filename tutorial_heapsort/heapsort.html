@@ -1,0 +1,226 @@
+<!--|\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/|
+|\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/|
+||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/
+/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\
+
+    Heap Sort Stencil | Main HTML file
+
+    @author ohseejay / https://github.com/ohseejay
+                     / https://bitbucket.org/ohseejay
+
+    Chad Jenkins
+    Laboratory for Perception RObotics and Grounded REasoning Systems
+    University of Michigan
+
+    License: Michigan Honor License 
+
+|\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/|
+||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/
+/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\
+\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\-->
+
+
+<!DOCTYPE html>
+<html>
+    <!-- 
+        This is a comment in JavaScript.  It will be ignored in the document. 
+    -->
+
+    <head> 
+        <!-- 
+            head element contain document elements not intended to 
+            be rendered directly
+        -->
+
+        <!-- the title of the document -->
+        <title>My Heap Sort</title> 
+
+    </head>
+
+    <body onload=startMeUp()>
+        <!-- 
+            body element contains document elements for the browser to display;
+            this element will call the function startMeUp once loaded.
+        -->
+    
+        <!-- a header text element with a link to my website -->
+        <a href="http://ohseejay.org"><h1>My Heap Sort</h1></a>
+    
+        <!-- a 2D drawing canvas element; we will draw a heap here -->
+        <canvas width=900 height=200 id="myCanvas"></canvas>
+
+        <!-- a generic container element; we will insert text output here -->
+        <div id="output">hello world</div>
+  </body>
+</html>
+
+<!-- 
+    A script element contains JavaScript code for the browser to execute. 
+        Script code could be in another file, specified in the "src" attribute,
+        as in the case below for your heap code.
+
+    This external source file should produce the object "minheaper" that has
+        two function methods for inserting and extracting heap elements.
+-->
+
+<!--  you will want to uncomment this tag
+<script src="heap.js"></script>
+-->
+ 
+
+<!--
+    Script code could also be contained directed within the HTML element tags,
+        as in the number array generation and sorting code below.
+
+    Note: this code is invoked by the body element calling startMeUp().
+   
+    Note: it is bad form to place a script element outside the document; this
+       placement is done for the purpose of clarity.
+-->
+<script>
+
+// This is a comment in JavaScript.  It will be ignored in run-time execution
+
+// the addHTMLLine function appends the given text to a given document element
+function addHTMLLine(element,text) {
+
+    // find the element "output" in the document, and
+    //   replace its contents with th string "check"
+    // Note: document is the root DOM element of a web page;
+    //   when an HTML file is loaded by a browser, it becomes a document object.
+    document.getElementById(element).innerHTML += "<br>" + text;
+}
+
+// the startMeUp function will generate, heapify, and sort an array of numbers 
+function startMeUp () {
+
+    // alert will pop up a dialog box with text that will pause execution
+    //   until the appropriate user action is taken
+        alert("woo haa");  // you will want to comment out this call
+ 
+    // console.log() prints the output of a JavaScript expression to 
+    //   the brower's console; and much less distracting than alert
+    console.log("assigning string to output element in the document");
+    document.getElementById("output").innerHTML = "check";
+    // Note: if this does not work, you should see "hello world" and not "check"
+
+    var i,j,k,x; // create local variables for loop iteration
+    // Note: variables not preceded by "var" are globally scoped by default
+
+    console.log("create array of random numbers");
+    numbers = []; // create empty array object
+    for (i=0;i<20;i++) {  // assign random numbers to array elements
+        numbers[i] = Math.floor(Math.random()*10000);
+        // Note: the Math object has a number of useful mathematical routines
+    }
+
+    console.log("converting number array to string");
+    output_string = "numbers to sort: "; // create empty string
+    for (i=0;i<numbers.length;i++) {
+        output_string += numbers[i] + " "; // concatenate array element and a space to the output string
+        console.log("Note: 2+3="+(2+3)+" is different than '2'+'3'="+("2"+"3"));
+    }
+
+    console.log("appending number array to output element in the document");
+    addHTMLLine("output",output_string);
+    // Note: document.getElementById("output").innerHTML += output_string;
+    //   will perform the same operation as the call to addHTMLLine
+
+    // the typeof operator will return the type of any variable
+    if (typeof minheaper === 'undefined') {
+        // Note: undefined variables will be 'undefined' as a type
+
+        console.log("heap implementation not found; return without sorting");
+        addHTMLLine("output","my heaping functions are not yet implemented" );
+        return;  // return will end the execution of the function 
+    }
+    else {
+        // Note: once implemented, the minheaper should be of type 'object',
+        //   minheaper.insert should be of type 'function', and
+        //   minheaper.extract should be of type 'function'
+        console.log("heaping function found with type "+(typeof minheaper));
+    }
+
+    console.log("building min binary heap from number array");
+    numbers_heap = []; // create array for heap
+    for (i=0;i<numbers.length;i++) {
+
+        console.log("inserting number "+numbers[i]+" into the heap");
+        minheaper.insert(numbers_heap,numbers[i]);
+
+        console.log("appending current heap state to output object");
+        output_string = "heap (insert " + numbers[i] + "): "; //
+        for (j=0;j<numbers_heap.length;j++) {
+            output_string += numbers_heap[j] + " "; // 
+        }
+        addHTMLLine("output",output_string);
+    }
+
+    console.log("before sorting, crudely draw current heap state to canvas");
+    // grab canvas element and its drawing context
+    console.log("obtaining reference to canvas object in the document");
+    c = document.getElementById("myCanvas");
+    console.log("obtaining the drawing context of the canvas object");
+    ctx = c.getContext("2d");
+
+    console.log("recursively drawing binary heap elements to the canvas");
+    ctx.font = "20px Courier"; // select font for text
+    ctx.fillStyle = "#0000FF"; // select color for filling text
+    drawHeapNode(numbers_heap,0,0,c.width,1); // perform initial recursion call
+
+    // Note: a function can be declared within another function;
+    //   in JavaScript functions are objects that can be invoked
+    function drawHeapNode(heap,index,x1,x2,depth) {
+
+        spacing_string = "";
+        for (j=0;j<depth;j++) {
+            spacing_string += "    ";
+        }
+        console.log(spacing_string+"drawing number "+heap[index]+" at heap depth "+depth);
+        ctx.fillText(heap[index],(x1+x2)/2,depth*20);
+
+        // recurse down the first child of this heap element
+        if (typeof heap[2*(index)+1] !== 'undefined')
+            drawHeapNode(heap,2*(index)+1,x1,(x1+x2)/2,depth+1);
+
+        // recurse down the second child of this heap element
+        if (typeof heap[2*(index)+2] !== 'undefined')
+            drawHeapNode(heap,2*(index)+2,(x1+x2)/2,x2,depth+1);
+    }
+    
+    console.log("sorting numbers that have been heapified");
+    numbers_sorted = [];
+    for (i=0;i<numbers.length;i++) {
+        numbers_sorted[i] = minheaper.extract(numbers_heap);
+
+        output_string = "heap (extract " + numbers_sorted[i] + "): "; // 
+        for (j=0;j<numbers_heap.length;j++) {
+            output_string += numbers_heap[j] + " "; //
+        }
+        console.log("extracted number "+numbers_sorted[i]+" from the heap");
+        console.log("appending current heap state to output object");
+        addHTMLLine("output",output_string);
+    }
+
+    //numbers_sorted = numbers; // just for testing 
+    console.log("outputting sorted array of numbers");
+    output_string = "<a href='get_sorted.jpg'>sorted</a>: "; // create empty string
+    // Note: JavaScript allows double and single quotes for containing strings
+    for (i=0;i<numbers.length;i++) {
+        if (i) {
+            if (numbers_sorted[i-1] > numbers_sorted[i])
+                output_string += '<b style="color:red">';
+        }
+        output_string += numbers_sorted[i] + " "; // concatenate array element and a space to the output string
+        if (i) {
+            if (numbers_sorted[i-1] > numbers_sorted[i])
+                output_string += '</b>';
+        }
+    }
+    addHTMLLine("output",output_string);
+}
+
+</script>
+
+
+
