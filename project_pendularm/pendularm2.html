@@ -42,6 +42,9 @@
 <!-- threejs keyboard input helper -->
 <script src="js/THREEx.KeyboardState.js"></script>
 
+<!-- functions to be implemented -->
+<script src="update_pendulum_state2.js"></script>
+
 <script>
 
 //////////////////////////////////////////////////
@@ -62,14 +65,11 @@ animate();
 function init() {
 
     // create pendulum object and its kinematic and dynamic parameters
-    pendulum = {length:[2.0,2.0], mass:[2.0,2.0], angle:[Math.PI/2,0], angle_dot:[0.0,0.0]};
-    pendulum = {length:[2.0,2.0], mass:[2.0,2.0], angle:[0,0], angle_dot:[0.0,0.0]};
-    pendulum.angle_previous = [0,0];
+    pendulum = {length:[2.0,2.0], mass:[2.0,2.0], angle:[Math.PI/2,0], angle_dot:[0.0,0.0], angle_previous:[0.0,0.0]};
 
     // initialize pendulum controls
     pendulum.control = [0,0];
     pendulum.desired = [-Math.PI/2.5,Math.PI/2.5];
-    pendulum.desired_dot = [0,0];
 
     // initialize integral term accumulated error to zero
     accumulated_error = [0,0];
@@ -78,13 +78,14 @@ function init() {
     gravity = 9.81;  // Earth gravity
 
     // initialize pendulum PID servo gains
-    pendulum.servo = {kp:0, kd:0, ki:0};  // no control
+    pendulum = set_PID_parameters(pendulum)
 
     // initialize time and set timestep 
     t = 0;
     dt = 0.05;  // default
  
     // initialize method of numerical integration of dynamics
+    numerical_integrator = "none";
     //numerical_integrator = "euler";
     //numerical_integrator = "verlet";
     //numerical_integrator = "velocity verlet";
@@ -97,6 +98,12 @@ function init() {
     servo_active_state = {}; // string with current state of servo activation
 
     //STENCIL: for verlet integration, a first step in time is needed
+    if (typeof numerical_integrator !== "undefined") {
+        if (numerical_integrator === "verlet") {
+            var result = init_verlet_integrator(pendulum, t, gravity);
+            pendulum = result[0]; t = result[1];
+        }
+    }
 
     document.addEventListener('keydown', function(e) {
         if (e.keyCode == 88)  // 'x' == 88
@@ -147,6 +154,8 @@ function animate() {
         pendulum.control += -50.0; // add a motor force to the pendulum motor
 
     // STENCIL: implement servo controller
+    var result = PID(pendulum, accumulated_error, dt);
+    pendulum = result[0]; accumulated_error = result[1];
 
     // toggle activation of servo controller from user interaction
     if (keyboard.pressed("c"))
@@ -161,6 +170,9 @@ function animate() {
     else
         servo_active_state = "active";
 
+    pendulum.angle_dot_dot = pendulum_acceleration(pendulum, gravity); 
+
+    pendulum = update_pendulum_state(numerical_integrator, pendulum, dt, gravity);
 
     // integrate pendulum state forward in time by dt
     if (typeof numerical_integrator === "undefined")
@@ -168,13 +180,7 @@ function animate() {
 
         // STENCIL: a correct integrator is REQUIRED here for this assignment
 
-        pendulum.angle_previous[0] = pendulum.angle[0];
-        pendulum.angle[0] = (pendulum.angle[0]+Math.PI/180)%(2*Math.PI);
-        pendulum.angle_dot[0] = (pendulum.angle[0]-pendulum.angle_previous[0])/dt;
-        pendulum.angle_previous[1] = pendulum.angle[1];
-        pendulum.angle[1] = (pendulum.angle[1]-Math.PI/180)%(2*Math.PI);
-        pendulum.angle_dot[1] = (pendulum.angle[1]-pendulum.angle_previous[1])/dt;
-        numerical_integrator = "none";
+        
 
 
     // set the angles of the pendulum
@@ -229,13 +235,6 @@ function animate() {
     // threejs rendering update
     renderer.render( scene, camera );
 
-}
-
-function pendulum_acceleration(p,g) {
-
-    return [a1,a2];
-
-    // STENCIL: return acceleration(s) system equation(s) of motion 
 }
 
 function createScene() {
