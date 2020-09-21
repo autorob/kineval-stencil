@@ -140,6 +140,9 @@ function animate() {
     if (keyboard.pressed("4"))
         numerical_integrator = "runge-kutta";
 
+    // zero the controls for the current time step
+    pendulum.control = [0,0];
+
     // update servo desired state from user interaction 
     if ( keyboard.pressed("e") )
         pendulum.desired += 0.05; // move the desired angle for the servo
@@ -148,10 +151,15 @@ function animate() {
 
 
     // add user force from user interaction
-    if ( keyboard.pressed("d") )
-        pendulum.control += 50.0;  // add a motor force to the pendulum motor
-    else if ( keyboard.pressed("a") )
-        pendulum.control += -50.0; // add a motor force to the pendulum motor
+    if ( keyboard.pressed("d") ) {
+        pendulum.control[0] += 50.0;  // add a motor force to the pendulum motor
+        pendulum.control[1] += 50.0;  // add a motor force to the pendulum motor
+    }
+    else if ( keyboard.pressed("a") ) {
+        pendulum.control[0] += -50.0; // add a motor force to the pendulum motor
+        pendulum.control[1] += -50.0;  // add a motor force to the pendulum motor
+    }
+
 
     // STENCIL: implement servo controller
     var result = PID(pendulum, accumulated_error, dt);
@@ -163,7 +171,7 @@ function animate() {
 
     // disable motor from user interaction 
     if (keyboard.pressed("s")||!servo_active_persist) {
-        pendulum.control = 0;
+        pendulum.control = [0, 0];
         accumulated_error = 0;
         servo_active_state = "disabled";
     }
@@ -201,17 +209,21 @@ function animate() {
         "<br>" +
         " x_dot = " + pendulum.angle_dot[0].toFixed(2)  + " " + pendulum.angle_dot[1].toFixed(2) + 
         "<br>" +
-/*
-        " x_desired = " + pendulum.desired.toFixed(2) + 
+        " x_desired = " + pendulum.desired[0].toFixed(2) + " " + pendulum.desired[1].toFixed(2) + 
         "<br><br> Servo: " + servo_active_state + " <br> " +
-        " u = " + pendulum.control.toFixed(2) +
+        " u = " + pendulum.control[0].toFixed(2) + ", " + pendulum.control[1].toFixed(2) + 
         "<br>" +
-        " kp = " + pendulum.servo.kp.toFixed(2) + 
+        " kp1 = " + pendulum.servo.kp[0].toFixed(2) + 
         "<br>" +
-        " kd = " + pendulum.servo.kd.toFixed(2) + 
+        " kd1 = " + pendulum.servo.kd[0].toFixed(2) + 
         "<br>" +
-        " ki = " + pendulum.servo.ki.toFixed(2) +
-*/
+        " ki1 = " + pendulum.servo.ki[0].toFixed(2) +
+        "<br>" +
+        " kp2 = " + pendulum.servo.kp[1].toFixed(2) + 
+        "<br>" +
+        " kd2 = " + pendulum.servo.kd[1].toFixed(2) + 
+        "<br>" +
+        " ki2 = " + pendulum.servo.ki[1].toFixed(2) +
         "<br><br>  Pendulum <br> " +
         " mass = " + pendulum.mass[0].toFixed(2) + " " + pendulum.mass[1].toFixed(2) +
         "<br>" +

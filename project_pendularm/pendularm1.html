@@ -84,7 +84,7 @@ function init() {
     // initialize method of numerical integration of dynamics
     numerical_integrator = "none";
     //numerical_integrator = "euler";
-    // numerical_integrator = "verlet";
+    //numerical_integrator = "verlet";
     //numerical_integrator = "velocity verlet";
     //numerical_integrator = "runge-kutta";
 
@@ -136,6 +136,9 @@ function animate() {
         numerical_integrator = "velocity verlet";
     if (keyboard.pressed("4"))
         numerical_integrator = "runge-kutta";
+    
+    // zero the controls for the current time step
+    pendulum.control = 0;
 
     // update servo desired state from user interaction 
     if ( keyboard.pressed("e") )
