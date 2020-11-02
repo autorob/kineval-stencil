@@ -47,8 +47,8 @@ kineval.iterateIK = function iterate_inverse_kinematics(endeffector_target_world
     // [NOTICE]: Please assign the following 3 variables to test against CI grader
 
     // ---------------------------------------------------------------------------
-    // robot.dx = []              // Error term
-    // robot.jacobian = []        // Jacobian matrix of current IK iteration
+    // robot.dx = []              // Error term, matrix size: 6 x 1, e.g., [[1],[1],[1],[0],[0],[0]]
+    // robot.jacobian = []        // Jacobian matrix of current IK iteration matrix size: 6 x N
     // robot.dq = []              // Joint configuration change term (don't include step length)  
     // ---------------------------------------------------------------------------
 
