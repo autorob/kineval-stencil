@@ -111,19 +111,69 @@ function drawHighlightedPathGraph(current_node) {
 
 }
 
-//////////////////////////////////////////////////
-/////     DRAWING HELPERS
-//////////////////////////////////////////////////
-
 function draw_2D_edge_configurations(q1,q2) {
     // draw line between locations of two 2D configurations on canvas
     c = document.getElementById("myCanvas");
     ctx = c.getContext("2d");
+    ctx.strokeStyle = visited_state;
+    ctx.lineWidth=1;
     ctx.beginPath();
     ctx.moveTo(xformWorldViewX(q1[0]),xformWorldViewY(q1[1]));
     ctx.lineTo(xformWorldViewX(q2[0]),xformWorldViewY(q2[1]));
     ctx.stroke();
 }
+
+function drawHighlightedPath(path) {
+    // once this method has been called, redraw the path until told otherwise
+    if (!draw_path) {
+        draw_path = true;
+        rrt_path = path;
+    }
+
+    ctx = c.getContext("2d");
+    ctx.lineWidth = 4;
+
+    for (var q = 0; q < path.length; q++) {
+        if (testCollision(path[q].vertex)) {
+            // if node is in collision, draw it and the next line in red
+            ctx.fillStyle = collision;
+            ctx.strokeStyle = collision;
+        } else if (q < path.length-1 && testCollision(path[q+1].vertex)) {
+            // if next node is in collision, draw this node in blue but line in red
+            ctx.fillStyle = path_start;
+            ctx.strokeStyle = collision;
+        } else if (path[q].vertex == q_goal) {
+            // if this is the goal node, draw it in green
+            ctx.fillStyle = goal_fill;
+            // draw the line in blue if next node is valid, red if collision
+            if (q < path.length-1 && testCollision(path[q+1].vertex)) {
+                ctx.strokeStyle = collision;
+            } else {
+                ctx.strokeStyle = path_start;
+            }
+        } else {
+            // no collisions; draw node and line in blue
+            ctx.strokeStyle = path_start;
+            ctx.fillStyle = path_start;
+        }
+
+        if (q < path.length-1) {
+            ctx.beginPath();
+            ctx.moveTo(xformWorldViewX(path[q].vertex[0]),xformWorldViewY(path[q].vertex[1]));
+            ctx.lineTo(xformWorldViewX(path[q+1].vertex[0]),xformWorldViewY(path[q+1].vertex[1]));
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        ctx.fillRect(xformWorldViewX(path[q].vertex[0]) - 3,
+                     xformWorldViewY(path[q].vertex[1]) - 3,
+                     6, 6);
+    }
+}
+
+//////////////////////////////////////////////////
+/////     DRAWING HELPERS
+//////////////////////////////////////////////////
 
 function drawRobotWorld() {
     c = document.getElementById("myCanvas");
@@ -147,18 +197,6 @@ function drawRobotWorld() {
         ctx.fillStyle = obstacle_fill;
         ctx.fillRect(xformWorldViewX(range[j][0][0]),xformWorldViewY(range[j][1][0]),xformWorldViewX(range[j][0][1])-xformWorldViewX(range[j][0][0]),xformWorldViewY(range[j][1][1])-xformWorldViewY(range[j][1][0]));
     }
-}
-
-function drawHighlightedPath(path) {
-    ctx = c.getContext("2d");
-    ctx.strokeStyle="#0000FF";
-    ctx.lineWidth=4;
-    ctx.beginPath();
-    for (i=1;i<path.length;i++) {
-        ctx.moveTo(xformWorldViewX(path[i-1].vertex[0]),xformWorldViewY(path[i-1].vertex[1]));
-        ctx.lineTo(xformWorldViewX(path[i].vertex[0]),xformWorldViewY(path[i].vertex[1]));
-    }
-    ctx.stroke();
 }
 
 //////////////////////////////////////////////////
@@ -254,7 +292,13 @@ function animate() {
         }
     }
 
-    if (draw_path) drawHighlightedPathGraph(path_q);
+    if (draw_path) {
+        if (search_alg.includes("RRT")) {
+            drawHighlightedPath(rrt_path);
+        } else {
+            drawHighlightedPathGraph(path_q);
+        }
+    }
 
     // update textbar with current search state
     textbar.innerHTML =
