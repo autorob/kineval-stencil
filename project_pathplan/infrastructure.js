@@ -90,7 +90,7 @@ function insertTreeVertex(tree,q) {
     tree.newest = tree.vertices.length - 1;
 
     // draw location on canvas
-    draw_2D_configuration(q);
+    draw_2D_configuration(q, "visited");
 }
 
 
@@ -255,6 +255,7 @@ function initSearch() {
             eval(param_parsed[0]+"=\'"+param_parsed[1]+"\'");
     }
 
+
     // set up the color constants
     initColorScheme(color_scheme);
 
@@ -338,6 +339,10 @@ function restartSearch() {
 
     // re-initialize the queue
     initSearchGraph();
+
+    // or the RRTs
+    T_a = initRRT(q_init);
+    T_b = initRRT(q_goal);
 
     // don't draw the path until asked to
     draw_path = false;
