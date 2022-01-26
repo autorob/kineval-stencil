@@ -62,6 +62,9 @@ function iterateGraphSearch() {
     //   Return "succeeded" if the search succeeds on this iteration.
     //   Return "iterating" otherwise.
     //
+    //   When search is complete ("failed" or "succeeded") set the global variable 
+    //   search_iterate to false. 
+    //
     //   Provided support functions:
     //
     //   testCollision - returns whether a given configuration is in collision
