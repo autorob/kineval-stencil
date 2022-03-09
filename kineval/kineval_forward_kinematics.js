@@ -23,13 +23,14 @@ kineval.robotForwardKinematics = function robotForwardKinematics () {
         return;
     }
 
-    // STENCIL: implement kineval.buildFKTransforms();
+    // STENCIL: call kineval.buildFKTransforms();
 
 }
 
-    // STENCIL: reference code alternates recursive traversal over 
-    //   links and joints starting from base, using following functions: 
-    //     traverseFKBase
+    // STENCIL: implement buildFKTransforms, which kicks off
+    //   a recursive traversal over links and 
+    //   joints starting from base, using following functions: 
+    //     traverseFKBase 
     //     traverseFKLink
     //     traverseFKJoint
     //
