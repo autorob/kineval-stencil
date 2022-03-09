@@ -33,10 +33,15 @@ kineval.robotForwardKinematics = function robotForwardKinematics () {
     //     traverseFKLink
     //     traverseFKJoint
     //
-    // user interface needs the heading (z-axis) and lateral (x-axis) directions
-    //   of robot base in world coordinates stored as 4x1 matrices in
-    //   global variables "robot_heading" and "robot_lateral"
-    //
+
+    // To use the keyboard interface, assign the global variables 
+    //   "robot_heading" and "robot_lateral", 
+    //   which represent the z-axis (heading) and x-axis (lateral) 
+    //   of the robot's base in its own reference frame, 
+    //   transformed into the world coordinates.
+    // The axes should be represented in unit vector form 
+    //   as 4x1 homogenous matrices
+
     // if geometries are imported and using ROS coordinates (e.g., fetch),
     //   coordinate conversion is needed for kineval/threejs coordinates:
     //
