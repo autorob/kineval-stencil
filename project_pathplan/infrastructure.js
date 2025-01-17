@@ -168,6 +168,9 @@ function setPlanningScene() {
         range[5] = [ [1,1.3],[-1,3.5] ];
         range[6] = [ [2.7,3],[-1,0] ];
         range[7] = [ [2.7,3],[.5,5] ];
+    } else { // 2025 changes below adapted from Liz Olson, 2024
+        if (typeof obstacles === 'undefined') return;
+        range = range.concat(obstacles);
     }
 }
 
@@ -189,28 +192,6 @@ function init() {
 }
 
 function initSearch() {
-
-    // specify default search algorithm to use for planning
-    //search_alg = "depth-first";
-    //search_alg = "breadth-first";
-    //search_alg = "greedy-best-first";
-    search_alg = "A-star";
-    //search_alg = "RRT";
-    //search_alg = "RRT-connect";
-    //search_alg = "RRT-star";
-
-    // specify default the world for the planner
-    //  (stored as "range" global variable with name "planning_scene")
-    //planning_scene = "empty";
-    planning_scene = "misc";
-    //planning_scene = "narrow1";
-    //planning_scene = "narrow2";
-    //planning_scene = "three_sections";
-
-    // specify default eps (epsilon) spatial resolution variable
-    //   for RRT, specifies threshold radius for step size and reaching goal
-    eps = 0.1;
-
     // create event handlers for the mouse
     canvas = document.getElementById("myCanvas");
     mouse_x = 0;
@@ -234,27 +215,8 @@ function initSearch() {
         restartSearch();
     };
 
-    // specify start and goal configurations
-    q_start_config = [0,0];
-    q_goal_config = [4,4];
-    q_init = q_start_config;
-    q_goal = q_goal_config;
-
     // keep track of the last goal drawn on the canvas
     prev_q_goal = [10000,1000];
-
-    color_scheme = "default";
-
-    var url_parsed = window.location.href.split("?");
-    for (i=1;i<url_parsed.length;i++) {
-        var param_parsed = url_parsed[i].split("=");
-        //eval(param_parsed[0]+"=\'"+param_parsed[1]+"\'");
-        if ((param_parsed[0] !== "search_alg")&&(param_parsed[0] !== "planning_scene")&&(param_parsed[0] !== "color_scheme"))
-            eval(param_parsed[0]+"="+param_parsed[1]);
-        else
-            eval(param_parsed[0]+"=\'"+param_parsed[1]+"\'");
-    }
-
 
     // set up the color constants
     initColorScheme(color_scheme);
