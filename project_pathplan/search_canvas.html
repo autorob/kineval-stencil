@@ -61,6 +61,49 @@
     <canvas id="myCanvas" width=800 height=800 style="z-index: 10 ;border:1px solid #000000;">
     </canvas>
 
+    <!-- 2025 changes below adapted from Liz Olson, 2024 -->
+    <script>
+      // Default search algorithm to use for planning
+      search_alg = "A-star";
+
+      // Default scene
+      planning_scene = "misc";
+
+      // Default eps (epsilon) spatial resolution variable
+      // (For RRT, specifies threshold radius for step size and reaching goal)
+      eps = 0.1;
+
+      // Default start and goal configurations
+      q_init = [0,0];
+      q_goal = [4,4];
+
+      // Default color scheme
+      color_scheme = "default";
+
+      // Parse user input
+      var url_parsed = window.location.href.split("?");
+      for (i=1; i < url_parsed.length; i++) {
+          var param_parsed = url_parsed[i].split("=");
+          if ((param_parsed[0] !== "search_alg") &&
+              (param_parsed[0] !== "planning_scene") &&
+              (param_parsed[0] !== "color_scheme")) {
+              eval(param_parsed[0]+"="+param_parsed[1]);
+          } else {
+              eval(param_parsed[0]+"=\'"+param_parsed[1]+"\'");
+          }
+      }
+
+      // load planning scene src files dynamically
+      if (planning_scene.includes(".js")) {
+          obstaclesElement = document.createElement('script');
+          obstaclesElement.setAttribute("type", "text/javascript");
+          obstaclesElement.setAttribute("src", planning_scene);
+
+          if (typeof obstaclesElement !== 'undefined') {
+              document.getElementsByTagName("head")[0].appendChild(obstaclesElement);
+          }
+     }
+    </script>
   </body>
 </html>
 
